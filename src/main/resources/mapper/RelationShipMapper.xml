@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.meeting.wu.mapper.RelationshipMapper">
+    <resultMap id="baseMap" type="com.meeting.wu.entity.Relationship">
+        <result property="userId" column="user_id" jdbcType="BIGINT" javaType="java.lang.Long"/>
+        <result property="meetingId" column="meeting_id" jdbcType="INTEGER" javaType="java.lang.Integer"/>
+        <result property="status" column="status" jdbcType="INTEGER" javaType="java.lang.Integer"/>
+    </resultMap>
+    <insert id="insertRelationship">
+        insert into relationship (meeting_id,user_id,status)
+        values (#{meetingId},#{userId},#{status})
+    </insert>
+    <select id="selectRelationship" resultMap="baseMap">
+        select *
+        from relationship
+        where meeting_id = #{meetingId} and user_id = #{userId}
+    </select>
+</mapper>

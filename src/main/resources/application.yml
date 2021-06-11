@@ -1,0 +1,30 @@
+server:
+  port: 9898
+
+  # ��ͨQQ����
+spring:
+  mail:
+    host: smtp.qq.com
+    username: 1726036835@qq.com # �����˺�
+    password: vehubfffyfviehji # ��Ȩ��
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+  datasource:
+    username: root
+    password: 123456
+    url: jdbc:mysql://localhost:3306/huiyi?useUnicode=false&characterEncoding=utf-8
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.meeting.wu.entity
+mail:
+  fromMail:
+    addr: 1726036835@qq.com
+
+

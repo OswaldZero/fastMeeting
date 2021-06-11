@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.meeting.wu.mapper.MeetingMapper">
+    <resultMap id="baseMap" type="com.meeting.wu.entity.Meeting">
+        <id property="meetingId" column="meeting_id" jdbcType="INTEGER" javaType="java.lang.Integer"/>
+        <result property="meetingName" column="meeting_name" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <result property="timeBegin" column="time_begin" jdbcType="TIMESTAMP" javaType="java.time.LocalDateTime"/>
+        <result property="timeEnd" column="time_end" jdbcType="TIMESTAMP" javaType="java.time.LocalDateTime"/>
+        <result property="status" column="status" jdbcType="INTEGER" javaType="java.lang.Integer"/>
+        <result property="radius" column="radius" jdbcType="DECIMAL" javaType="java.math.BigDecimal"/>
+        <result property="longitude" column="longitude" jdbcType="DECIMAL" javaType="java.math.BigDecimal"/>
+        <result property="latitude" column="latitude" jdbcType="DECIMAL" javaType="java.math.BigDecimal"/>
+        <result property="meetingDescription" column="meeting_description" jdbcType="VARCHAR" javaType="java.lang.String"/>
+    </resultMap>
+    <resultMap id="userResult" type="com.meeting.wu.entity.User">
+        <id property="userId" column="user_id" jdbcType="BIGINT" javaType="java.lang.Long"/>
+        <result property="userName" column="user_name" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <result property="userPassword" column="user_password" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <result property="userEmail" column="user_email" jdbcType="VARCHAR" javaType="java.lang.String"/>
+    </resultMap>
+    <insert id="insertMeeting" useGeneratedKeys="true" keyProperty="meetingId">
+        insert into meeting
+        (meeting_id,meeting_name,time_begin,time_end,meeting_description)
+        values (#{meetingId},#{meetingName},#{timeBegin},#{timeEnd},#{meetingDescription})
+    </insert>
+    <select id="selectMeetingByTime" resultMap="baseMap">
+        select meeting_id,meeting_name,time_begin,time_end,status
+        from meeting
+        where(
+            (time_begin &gt;= #{timeBegin,jdbcType=TIMESTAMP} and time_end &lt;= #{timeEnd,jdbcType=TIMESTAMP})
+            or
+            (time_begin &lt;= #{timeBegin,jdbcType=TIMESTAMP} and time_end &gt; #{timeBegin,jdbcType=TIMESTAMP})
+            or
+            (time_begin &lt; #{timeEnd,jdbcType=TIMESTAMP} and time_end &gt;= #{timeEnd,jdbcType=TIMESTAMP})
+        )
+        <if test="meetingName != null">
+            and meeting_name like concat('%',#{meetingName},'%')
+        </if>
+        order by meeting_id desc
+        <if test="offsets != null">
+            limit #{startRecord},#{offsets}
+        </if>
+    </select>
+    <select id="selectMeetingByUserId" resultMap="baseMap">
+        select m.meeting_id,meeting_name,time_begin,time_end,m.status
+        from user as u
+        left join relationship as r on (u.user_id = r.user_id and r.status = 1)
+        left join meeting as m on r.meeting_id = m.meeting_id
+        where u.user_id = #{userId}
+    </select>
+    <select id="selectMeetingByMeetingId" resultMap="baseMap">
+        select meeting_id,meeting_name,time_begin,time_end,status,radius,longitude,latitude
+        from meeting as m
+        where m.meeting_id = #{meetingId}
+    </select>
+    <select id="selectUserByMeetingId" resultMap="userResult">
+        select user_name,u.user_id
+        from meeting as m
+        left join relationship as r on m.meeting_id = r.meeting_id
+        left join user as u on r.user_id = u.user_id
+        where m.meeting_id = #{meetingId} and r.status = #{status}
+
+    </select>
+</mapper>
